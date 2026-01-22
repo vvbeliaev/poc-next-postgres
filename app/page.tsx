@@ -16,7 +16,7 @@ async function addPost(formData: FormData) {
     });
     revalidatePath('/');
     revalidatePath('/ssr');
-    revalidatePath('/isr');
+    revalidatePath('/ssg');
   } catch (e) {
     console.error('Failed to add post:', e);
   }
@@ -35,7 +35,7 @@ export default async function Home() {
               Next.js <span className="text-blue-600">Postgres</span> PoC
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              A high-performance boilerplate demonstrating SSR, ISR, and optimized database interactions with Prisma.
+              A high-performance boilerplate demonstrating SSR, SSG, and optimized database interactions with Prisma.
             </p>
           </div>
         </div>
@@ -58,17 +58,17 @@ export default async function Home() {
           </Link>
 
           <Link 
-            href="/isr" 
-            className="group p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300"
+            href="/ssg" 
+            className="group p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-xl hover:border-amber-500/50 transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-amber-50 dark:bg-amber-500/10 rounded-lg text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-emerald-500 transition-colors">Static + Revalidate</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-amber-500 transition-colors">Static Generation</span>
             </div>
-            <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">ISR Route</h3>
-            <p className="text-slate-500 dark:text-slate-400">Blazing fast performance. Cached with 24h TTL with background revalidation.</p>
+            <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">SSG Route</h3>
+            <p className="text-slate-500 dark:text-slate-400">Pre-rendered at build time. Ultra-fast delivery of content from the edge.</p>
           </Link>
         </section>
 

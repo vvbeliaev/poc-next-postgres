@@ -3,8 +3,7 @@ name: poc-next-postgres
 services:
   db:
     image: postgres:16-alpine
-    ports:
-      - '5432:5432'
+    network_mode: "host"
     env_file:
       - .env
     environment:
