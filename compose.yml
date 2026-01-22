@@ -36,7 +36,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: migrate
+      target: builder
     restart: "no"
     command: /bin/sh -c "./node_modules/.bin/prisma migrate deploy"
     environment:
