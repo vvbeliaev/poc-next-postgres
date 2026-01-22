@@ -2,13 +2,9 @@ import Link from 'next/link';
 
 import { prisma } from '@/lib/prisma';
 
-export const revalidate = 60 * 60 * 24; // 24 hours
+export const revalidate = 86400; // 24 hours
 
 async function getPosts() {
-  // SSG Hack: If we are in build time and don't want to connect to DB,
-  // or if the DB connection fails, we return an empty array.
-  // Next.js will still generate a static page with this empty data.
-  // In runtime, the first request will trigger a background revalidation.
   try {
     // We can also use an environment variable to explicitly skip during build
     if (process.env.IS_BUILD_TIME === 'true') {
@@ -30,39 +26,70 @@ export default async function ISRPage() {
   const renderedAt = new Date().toLocaleString();
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">ISR Route (SSG Hack)</h1>
-      <p className="mb-2 text-gray-600">
-        This page has a revalidate period of 3600s.
-      </p>
-      <p className="mb-4 text-sm text-amber-600 bg-amber-50 p-2 border border-amber-200 rounded">
-        <strong>Hack details:</strong> During `next build`, the DB query is skipped (or allowed to fail) returning an empty list. 
-        The first request in runtime will trigger a background revalidation to fetch real data from the DB.
-      </p>
-      
-      <p className="mb-4 font-mono text-xs">Page generated at: {renderedAt}</p>
-      
-      <div className="mb-6">
-        <Link href="/" className="text-blue-500 hover:underline">← Back to Home</Link>
+    <div className="min-h-screen pb-20 bg-slate-50 dark:bg-slate-950">
+      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 mb-12">
+        <div className="max-w-5xl mx-auto px-6 py-12">
+          <Link href="/" className="inline-flex items-center text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 mb-6 transition-colors group">
+            <svg className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            Back to Home
+          </Link>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">ISR Route</h1>
+              <p className="text-slate-500 dark:text-slate-400 text-lg">Incremental Static Regeneration for peak performance.</p>
+            </div>
+            <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-full">
+              <span className="text-emerald-700 dark:text-emerald-300 text-sm font-bold tracking-wide uppercase">24h TTL • Background Revalidation</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        {posts.length === 0 ? (
-          <div className="bg-gray-50 p-10 text-center border-2 border-dashed rounded">
-            <p className="text-gray-500 italic">No posts yet or currently revalidating...</p>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <div key={post.id} className="border p-4 rounded shadow">
-              <h2 className="text-xl font-semibold">{post.title}</h2>
-              <p className="text-gray-700">{post.content}</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Created at: {new Date(post.createdAt).toLocaleString()}
+      <div className="max-w-5xl mx-auto px-6 space-y-8">
+        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-2xl relative overflow-hidden">
+          <div className="relative z-10 flex gap-4">
+            <div className="text-amber-500 shrink-0">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <div>
+              <h4 className="font-bold text-amber-900 dark:text-amber-400 mb-1">Architecture Note: Build-Time Safety</h4>
+              <p className="text-amber-800/80 dark:text-amber-400/70 text-sm leading-relaxed text-balance">
+                During `next build`, we skip database queries to prevent CI/CD failures if the DB is unreachable. 
+                The first runtime visitor triggers a background update, ensuring the cache is always eventually consistent.
               </p>
             </div>
-          ))
-        )}
+          </div>
+          <div className="absolute top-0 right-0 p-4 font-mono text-[10px] uppercase tracking-tighter text-amber-200 dark:text-amber-900/30 font-bold select-none leading-none">
+            Page generated at: <br/> {renderedAt}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {posts.length === 0 ? (
+            <div className="col-span-full py-20 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl text-center">
+              <div className="mb-4 inline-flex p-4 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-400">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">No posts found</h3>
+              <p className="text-slate-500 dark:text-slate-400">Posts may be currently revalidating or none have been created yet.</p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <div key={post.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 leading-tight">{post.title}</h2>
+                <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">{post.content}</p>
+                <div className="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-slate-800">
+                  <div className="flex items-center text-slate-400 text-xs font-medium uppercase tracking-wider">
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </div>
+                  <div className="text-xs text-slate-300 dark:text-slate-600">ID: {post.id.toString().slice(0, 8)}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
-}
+} 
