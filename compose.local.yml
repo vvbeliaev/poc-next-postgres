@@ -29,6 +29,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - .env
     environment:
@@ -38,3 +40,17 @@ services:
       PORT: '3000'
     ports:
       - '3000:3000'
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command: ./node_modules/.bin/prisma migrate deploy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: 'postgresql://postgres:postgres@db:5432/postgres?schema=public'
+    depends_on:
+      db:
+        condition: service_healthy
